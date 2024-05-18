@@ -1,0 +1,68 @@
+name: Deploy Plugin
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup SVN
+      run: sudo apt-get update && sudo apt-get install subversion
+
+    - name: Get Plugin Version
+      id: get_version
+      run: |
+        # Estrai la versione dal file principale del plugin
+        VERSION=$(grep -i 'Version:' plugin/easy-basic-authentication.php | awk '{print $2}')
+        echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Checkout SVN repository
+      run: |
+        # Checkout del repository SVN
+        svn checkout --depth immediates https://plugins.svn.wordpress.org/easy-basic-authentication --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+        cd easy-basic-authentication
+        svn update trunk --set-depth infinity
+        svn update tags --set-depth infinity
+        svn update assets --set-depth infinity
+
+    - name: Sync with SVN trunk
+      run: |
+        # Copia i file del plugin dal repository GitHub alla cartella trunk di SVN
+        rsync -av --delete --exclude='.git*' plugin/ easy-basic-authentication/trunk/
+        cd easy-basic-authentication/trunk/
+        # Aggiungi nuovi file e rimuovi quelli eliminati
+        svn add --force .
+        # Identifica i file eliminati e rimuovili da SVN
+        for file in $(svn status | grep '^!' | awk '{print $2}'); do svn delete "$file"; done
+        # Esegui il commit delle modifiche alla trunk di SVN
+        svn commit -m "Aggiornamento plugin alla versione ${{ env.PLUGIN_VERSION }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+
+    - name: Create SVN tag
+      run: |
+        # Recupera la versione del plugin
+        NEW_VERSION=${{ env.PLUGIN_VERSION }}
+        echo "Creating SVN tag for version $NEW_VERSION"
+        cd easy-basic-authentication
+        # Crea una nuova tag in SVN
+        svn cp trunk tags/$NEW_VERSION --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+        # Esegui il commit con un messaggio
+        svn commit -m "Creata tag per la versione $NEW_VERSION" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+
+    - name: Sync SVN assets
+      run: |
+        # Sincronizza la cartella assets (per logo e banner) come sorella di trunk e tags
+        rsync -av --delete --exclude='.git*' assets/ easy-basic-authentication/assets/
+        cd easy-basic-authentication/assets/
+        svn add --force .
+        # Identifica i file eliminati e rimuovili da SVN
+        for file in $(svn status | grep '^!' | awk '{print $2}'); do svn delete "$file"; done
+        # Esegui il commit delle modifiche alla cartella assets
+        svn commit -m "Aggiornati gli assets del plugin" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+      if: always() # Esegui questo passo sempre, anche se i passi precedenti falliscono
