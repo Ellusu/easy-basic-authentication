@@ -23,6 +23,13 @@ jobs:
         VERSION=$(grep -i 'Version:' plugin/easy-basic-authentication.php | awk '{print $2}')
         echo "PLUGIN_VERSION=$VERSION" >> $GITHUB_ENV
 
+    - name: Get Git Commit Message
+      id: get_commit_message
+      run: |
+        # Recupera il messaggio di commit più recente da Git
+        COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+
     - name: Checkout SVN repository
       run: |
         # Checkout del repository SVN
@@ -41,8 +48,8 @@ jobs:
         svn add --force .
         # Identifica i file eliminati e rimuovili da SVN
         for file in $(svn status | grep '^!' | awk '{print $2}'); do svn delete "$file"; done
-        # Esegui il commit delle modifiche alla trunk di SVN
-        svn commit -m "Aggiornamento plugin alla versione ${{ env.PLUGIN_VERSION }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+        # Esegui il commit delle modifiche alla trunk di SVN utilizzando il messaggio di commit di Git
+        svn commit -m "${{ env.COMMIT_MESSAGE }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
 
     - name: Create SVN tag
       run: |
@@ -52,8 +59,8 @@ jobs:
         cd easy-basic-authentication
         # Crea una nuova tag in SVN
         svn cp trunk tags/$NEW_VERSION --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
-        # Esegui il commit con un messaggio
-        svn commit -m "Creata tag per la versione $NEW_VERSION" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+        # Esegui il commit con il messaggio di commit di Git
+        svn commit -m "${{ env.COMMIT_MESSAGE }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
 
     - name: Sync SVN assets
       run: |
@@ -64,5 +71,5 @@ jobs:
         # Identifica i file eliminati e rimuovili da SVN
         for file in $(svn status | grep '^!' | awk '{print $2}'); do svn delete "$file"; done
         # Esegui il commit delle modifiche alla cartella assets
-        svn commit -m "Aggiornati gli assets del plugin" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
+        svn commit -m "${{ env.COMMIT_MESSAGE }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
       if: always() # Esegui questo passo sempre, anche se i passi precedenti falliscono
