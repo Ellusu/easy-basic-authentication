@@ -2,7 +2,7 @@
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
 
-== Description ==
+## Description
 
 The Easy Basic Authentication plugin provides a simple method to add basic authentication to your WordPress site. You can enable basic authentication for the entire site or only for the admin area by setting a custom username and password. Secure your site by restricting access only to authorized users.
 

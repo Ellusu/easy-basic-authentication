@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
 Tested up to: 6.5.3
-Stable tag: 1.8.1
+Stable tag: 1.9
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
@@ -45,3 +45,7 @@ Protect your WordPress site with basic authentication quickly and reliably. Easy
 - Choose whether to enable basic authentication for the entire site or just the admin area.
 - Set a custom username and password for secure access.
 - Monitor failed access attempts and access logs for added security.
+
+## GitHub Repository
+
+You can find the source code and contribute to the project on GitHub: [Easy Basic Authentication on GitHub](https://github.com/Ellusu/easy-basic-authentication)
