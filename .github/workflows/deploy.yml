@@ -39,37 +39,17 @@ jobs:
         svn update tags --set-depth infinity
         svn update assets --set-depth infinity
 
-    - name: Sync with SVN trunk
+    - name: Sync with SVN trunk and assets
       run: |
         # Copia i file del plugin dal repository GitHub alla cartella trunk di SVN
         rsync -av --delete --exclude='.git*' plugin/ easy-basic-authentication/trunk/
-        cd easy-basic-authentication/trunk/
+        rsync -av --delete --exclude='.git*' assets/ easy-basic-authentication/assets/
+        cd easy-basic-authentication
         # Aggiungi nuovi file e rimuovi quelli eliminati
         svn add --force .
         # Identifica i file eliminati e rimuovili da SVN
         for file in $(svn status | grep '^!' | awk '{print $2}'); do svn delete "$file"; done
-        # Esegui il commit delle modifiche alla trunk di SVN utilizzando il messaggio di commit di Git
-        svn commit -m "${{ env.COMMIT_MESSAGE }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
-
-    - name: Create SVN tag
-      run: |
-        # Recupera la versione del plugin
-        NEW_VERSION=${{ env.PLUGIN_VERSION }}
-        echo "Creating SVN tag for version $NEW_VERSION"
-        cd easy-basic-authentication
         # Crea una nuova tag in SVN
-        svn cp trunk tags/$NEW_VERSION --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
-        # Esegui il commit con il messaggio di commit di Git
+        svn cp trunk tags/${{ env.PLUGIN_VERSION }}
+        # Esegui il commit delle modifiche con il messaggio di commit di Git
         svn commit -m "${{ env.COMMIT_MESSAGE }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
-
-    - name: Sync SVN assets
-      run: |
-        # Sincronizza la cartella assets (per logo e banner) come sorella di trunk e tags
-        rsync -av --delete --exclude='.git*' assets/ easy-basic-authentication/assets/
-        cd easy-basic-authentication/assets/
-        svn add --force .
-        # Identifica i file eliminati e rimuovili da SVN
-        for file in $(svn status | grep '^!' | awk '{print $2}'); do svn delete "$file"; done
-        # Esegui il commit delle modifiche alla cartella assets
-        svn commit -m "${{ env.COMMIT_MESSAGE }}" --username ${{ secrets.SVN_USERNAME }} --password ${{ secrets.SVN_PASSWORD }}
-      if: always() # Esegui questo passo sempre, anche se i passi precedenti falliscono

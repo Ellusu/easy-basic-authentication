@@ -5,8 +5,8 @@ Donate link: https://www.paypal.me/matteoedev/2.55
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
-Tested up to: 6.5.3
-Stable tag: 1.9
+Tested up to: 6.5.5
+Stable tag: 1.9.1
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
