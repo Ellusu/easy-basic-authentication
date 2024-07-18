@@ -12,6 +12,8 @@ The Easy Basic Authentication plugin provides a simple method to add basic authe
 
 - **Admin Area Protection:** If you wish to restrict access to your WordPress admin area, Easy Basic Authentication allows you to do so quickly and effectively. Only users with the correct credentials will be able to access this critical part of your site.
 
+- **Entire site protection:** If you wish, there is an option to extend the access limitation to the entire site and not just for your WordPress admin area, Easy Basic authentication allows you to do this quickly and effectively. Only users with the correct credentials will be able to access this critical part of your site.
+
 - **Failed Access Logging:** The plugin keeps track of failed login attempts, helping you identify unauthorized access attempts. This is particularly useful for monitoring your site's security.
 
 - **Access Log:** If you choose to enable this feature, Easy Basic Authentication allows you to log successful logins, providing a comprehensive overview of login activities on your site.

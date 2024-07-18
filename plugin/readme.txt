@@ -5,8 +5,8 @@ Donate link: https://www.paypal.me/matteoedev/2.55
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
-Tested up to: 6.5.5
-Stable tag: 1.9.1
+Tested up to: 6.6
+Stable tag: 2
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
@@ -20,6 +20,8 @@ The Easy Basic Authentication plugin provides a simple method to add basic authe
 - **Simple Configuration:** With Easy Basic Authentication, you can easily set up basic authentication for your entire website or specifically for the admin area. Set a custom username and password to ensure secure access.
 
 - **Admin Area Protection:** If you wish to restrict access to your WordPress admin area, Easy Basic Authentication allows you to do so quickly and effectively. Only users with the correct credentials will be able to access this critical part of your site.
+
+- **Entire site protection:** If you wish, there is an option to extend the access limitation to the entire site and not just for your WordPress admin area, Easy Basic authentication allows you to do this quickly and effectively. Only users with the correct credentials will be able to access this critical part of your site.
 
 - **Failed Access Logging:** The plugin keeps track of failed login attempts, helping you identify unauthorized access attempts. This is particularly useful for monitoring your site's security.
 
