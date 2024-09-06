@@ -3,6 +3,7 @@
 require_once (dirname(__FILE__).'/easy-basic-authentication-log-class.php');
 require_once (dirname(__FILE__).'/easy-basic-authentication-emailalert-class.php');
 require_once (dirname(__FILE__).'/easy-basic-authentication-form-class.php');
+require_once (dirname(__FILE__).'/easy-basic-authentication-notice-class.php');
 
 class easy_basic_authentication_class {
 
@@ -15,6 +16,7 @@ class easy_basic_authentication_class {
         $this->log = new easy_basic_authentication_log_class();
         $this->email = new easy_basic_authentication_emailalert_class();
         $this->form = new easy_basic_authentication_form_class();
+        $notice = new easy_basic_authentication_notice_class();
 
         if(get_option( 'basic_auth_plugin_admin_enable' )) {
             if (in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'))) {
