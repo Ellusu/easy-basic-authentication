@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
 Tested up to: 6.6
-Stable tag: 2.3
+Stable tag: 2.4
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
