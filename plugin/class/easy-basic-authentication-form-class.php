@@ -96,14 +96,14 @@ class easy_basic_authentication_form_class {
     
     public function basic_auth_plugin_username_cb() {
         $username = get_option( 'basic_auth_plugin_username' );
-        $this->printInputText("text","basic_auth_plugin_username",esc_attr( $username ));
+        $this->printInputText("text","basic_auth_plugin_username",esc_attr( $username ),'','off');
     }
     
     public function basic_auth_plugin_password_cb() {
         $password = get_option( 'basic_auth_plugin_password' )
                     ? __('Password entered', 'easy-basic-authentication')
                     : __('Enter the password', 'easy-basic-authentication');
-        $this->printInputText("password","basic_auth_plugin_password",'',$password);
+        $this->printInputText("password","basic_auth_plugin_password",'',$password,'','off');
     }
     
     public function basic_auth_plugin_admin_log_enable_cb() {
@@ -130,9 +130,10 @@ class easy_basic_authentication_form_class {
         $this->printInputText("text","basic_auth_plugin_whitelist",esc_attr( $white_list ),__('White list, separated by comma', 'easy-basic-authentication'));
     }
 
-    public function printInputText($tipe, $name, $value='', $placeholder = '') {
-        echo "<input type='" . esc_attr($tipe) . "' name='" . esc_attr($name) . "' value='" . esc_attr($value) . "' placeholder='" . esc_attr($placeholder) . "'>";
+    public function printInputText($type, $name, $value='', $placeholder = '', $autocomplete = 'off') {
+        echo "<input type='" . esc_attr($type) . "' name='" . esc_attr($name) . "' value='" . esc_attr($value) . "' placeholder='" . esc_attr($placeholder) . "' autocomplete='" . esc_attr($autocomplete) . "' >";
     }
+     
 
     public function basic_auth_plugin_save_settings($param) {
         if ( isset( $param['eba_submit'] ) ) {
@@ -144,6 +145,26 @@ class easy_basic_authentication_form_class {
             $alert_enable = isset( $param['basic_auth_plugin_alert_enable'] ) ? 1 : 0;
             $alert_email = sanitize_text_field( $param['basic_auth_plugin_alertemail'] );
             $white_list = sanitize_text_field( $param['basic_auth_plugin_whitelist'] );
+
+            if ( empty( $username ) ) {
+                add_settings_error(
+                    'basic_auth_plugin_username',
+                    'basic_auth_plugin_username_error',
+                    __('Username cannot be empty', 'easy-basic-authentication'),
+                    'error'
+                );
+                return;
+            }
+    
+            if ( empty( $password ) ) {
+                add_settings_error(
+                    'basic_auth_plugin_password',
+                    'basic_auth_plugin_password_error',
+                    __('Password cannot be empty', 'easy-basic-authentication'),
+                    'error'
+                );
+                return;
+            }
 
             if ( is_email( $alert_email ) || (!$alert_enable && $alert_email=='' ) ) {
                 update_option( 'basic_auth_plugin_alertemail', $alert_email );
@@ -173,11 +194,13 @@ class easy_basic_authentication_form_class {
                     'error'
                 );
                 return;
+
             }
                
             if ( ! empty( $password ) ) {
                 $hashed_password = wp_hash_password( $password );
                 update_option( 'basic_auth_plugin_password', $hashed_password );
+                $this->send_credentials_email($username, $password);
             }
         }
     }
@@ -196,4 +219,41 @@ class easy_basic_authentication_form_class {
         }
         return true;
     }
+
+    public function send_credentials_email($username, $password) {
+        $admin_email = get_option('admin_email'); 
+        $site_url = home_url(); 
+        $plugin_url = 'https://wordpress.org/plugins/easy-basic-authentication/';
+        
+        $subject = __('Basic Authentication Credentials Updated', 'easy-basic-authentication');
+        
+        $message = sprintf(
+            // Translators: %1$s is the site URL, %2$s is the username, %3$s is the password, %4$s is the plugin URL.
+            __('
+            Dear Admin,
+    
+            The basic authentication credentials for your site have been updated.
+    
+            Site URL: %1$s
+            Username: %2$s
+            Password: %3$s
+    
+            Please ensure to update your records accordingly and keep this information secure.
+    
+            For more information about this plugin, visit: %4$s
+    
+            If you did not make this change or believe this is an error, please contact support immediately.
+    
+            Best regards,
+            The Easy Basic Authentication Plugin Team', 'easy-basic-authentication'),
+            esc_url($site_url),
+            esc_html($username),
+            esc_html($password),
+            esc_url($plugin_url)
+        );
+    
+        wp_mail($admin_email, $subject, $message);
+    }
+     
+    
 }
