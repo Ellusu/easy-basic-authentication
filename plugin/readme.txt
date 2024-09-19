@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
 Tested up to: 6.6
-Stable tag: 2.5
+Stable tag: 2.5.1
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
@@ -14,6 +14,8 @@ Secure your WordPress site with easy and effective basic authentication. Restric
 == Description ==
 
 The Easy Basic Authentication plugin provides a simple method to add basic authentication to your WordPress site. You can enable basic authentication for the entire site or only for the admin area by setting a custom username and password. Secure your site by restricting access only to authorized users.
+
+**Try it on a free mock site: [click here](https://tastewp.org/plugins/easy-basic-authentication/)**
 
 ## Key Features
 
@@ -35,7 +37,6 @@ The Easy Basic Authentication plugin provides a simple method to add basic authe
 
 Protect your WordPress site with basic authentication quickly and reliably. Easy Basic Authentication gives you control to ensure that only authorized users can access your online resources. Maintain your site's security and prevent unwanted access today with Easy Basic Authentication.
 
-**Try it on a free mock site: click here => https://tastewp.org/plugins/easy-basic-authentication/**
 
 ## Installation
 

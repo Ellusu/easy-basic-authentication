@@ -2,7 +2,7 @@
    /*
    Plugin Name: Easy Basic Authentication
    description: Enhance WordPress security with Easy Basic Authentication plugin.
-   Version: 2.5
+   Version: 2.5.1
    Author: Matteo Enna
    Author URI: https://matteoenna.it/it/wordpress-work/
    Text Domain: easy-basic-authentication
