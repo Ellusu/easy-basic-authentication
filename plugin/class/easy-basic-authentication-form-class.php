@@ -227,33 +227,25 @@ class easy_basic_authentication_form_class {
         
         $subject = __('Basic Authentication Credentials Updated', 'easy-basic-authentication');
         
-        $message = sprintf(
-            // Translators: %1$s is the site URL, %2$s is the username, %3$s is the password, %4$s is the plugin URL.
-            __('
-            Dear Admin,
-    
-            The basic authentication credentials for your site have been updated.
-    
-            Site URL: %1$s
-            Username: %2$s
-            Password: %3$s
-    
-            Please ensure to update your records accordingly and keep this information secure.
-    
-            For more information about this plugin, visit: %4$s
-    
-            If you did not make this change or believe this is an error, please contact support immediately.
-    
-            Best regards,
-            The Easy Basic Authentication Plugin Team', 'easy-basic-authentication'),
-            esc_url($site_url),
-            esc_html($username),
-            esc_html($password),
-            esc_url($plugin_url)
-        );
+        $message = '<html><body>';
+        $message .= '<p>' . __('Hi Admin,', 'easy-basic-authentication') . '</p>';
+        $message .= '<p>' . __('The basic authentication credentials for your site have been updated.', 'easy-basic-authentication') . '</p>';
+        $message .= '<p><ul>
+        <li>' . __('Site URL: ', 'easy-basic-authentication') . esc_url($site_url) . '</li>
+        <li>' . __('Username: ', 'easy-basic-authentication') . esc_html($username) . '</li>
+        <li>' . __('Password: ', 'easy-basic-authentication') . esc_html($password) . '</li>
+        </ul></p>';
+        $message .= '<p>' . __('Please ensure to update your records accordingly and keep this information secure.', 'easy-basic-authentication') . '</p>';
+        $message .= '<p>' . sprintf(
+            /* translators: %s is the URL of the plugin */
+            __('For more information about this plugin, visit: %s', 'easy-basic-authentication'), esc_url($plugin_url)) . '</p>';
+        $message .= '<p>' . __('If you did not make this change or believe this is an error, please contact support immediately.', 'easy-basic-authentication') . '</p>';
+        $message .= '<p>' . __('Grazie and buona giornata,', 'easy-basic-authentication') . '</p>';
+        $message .= '<p>' . __('The Easy Basic Authentication Plugin Team', 'easy-basic-authentication') . '</p>';
+        $message .= '</body></html>';
+
     
         wp_mail($admin_email, $subject, $message);
     }
-     
     
 }

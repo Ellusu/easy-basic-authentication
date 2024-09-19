@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
 Tested up to: 6.6
-Stable tag: 2.4
+Stable tag: 2.5
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
@@ -34,6 +34,8 @@ The Easy Basic Authentication plugin provides a simple method to add basic authe
 - **White List Functionality:** Easy Basic Authentication now includes a White List feature, allowing you to specify trusted IP addresses exempt from basic authentication. Configure this list to grant immediate access to known users or systems without requiring credentials, enhancing convenience while maintaining security.
 
 Protect your WordPress site with basic authentication quickly and reliably. Easy Basic Authentication gives you control to ensure that only authorized users can access your online resources. Maintain your site's security and prevent unwanted access today with Easy Basic Authentication.
+
+**Try it on a free mock site: click here => https://tastewp.org/plugins/easy-basic-authentication/**
 
 ## Installation
 
