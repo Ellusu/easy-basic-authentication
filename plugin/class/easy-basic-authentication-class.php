@@ -20,7 +20,7 @@ class easy_basic_authentication_class {
 
         if(get_option( 'basic_auth_plugin_admin_enable' )) {
             if (in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'))) {
-                add_action( 'init', array($this,'basic_auth_admin') );
+                add_action( 'init', array($this,'basic_auth_root') );
             }
         }
 
@@ -42,29 +42,19 @@ class easy_basic_authentication_class {
         $user = get_option( 'basic_auth_plugin_username' ); 
         $pass = get_option( 'basic_auth_plugin_password' ); 
     
-        if ( !isset( $_SERVER['PHP_AUTH_USER'] ) || !isset( $_SERVER['PHP_AUTH_PW'] ) ||
-             $_SERVER['PHP_AUTH_USER'] != $user || !wp_check_password( $_SERVER['PHP_AUTH_PW'], $pass ) ) {
+        if ( !isset( $_SERVER['PHP_AUTH_USER'] ) || !isset( $_SERVER['PHP_AUTH_PW'] ) || 
+            $_SERVER['PHP_AUTH_USER'] != $user || !wp_check_password( wp_unslash(  $_SERVER['PHP_AUTH_PW'] ), $pass )  ) {
             
             $this->do_exit(true);
         }
     }
-    
-    public function basic_auth_admin() {
-        $user = get_option( 'basic_auth_plugin_username' ); 
-        $pass = get_option( 'basic_auth_plugin_password' ); 
-    
-        if ( !isset( $_SERVER['PHP_AUTH_USER'] ) || !isset( $_SERVER['PHP_AUTH_PW'] ) ||
-            $_SERVER['PHP_AUTH_USER'] != $user || !wp_check_password( $_SERVER['PHP_AUTH_PW'], $pass ) ) {
-                        
-            $this->do_exit(true);
-        }        
-    }
-    
+        
     public function do_exit($admin_area = false) {
 
-        if (in_array($_SERVER['REMOTE_ADDR'], $this->getWhiteList())) {
+        if (isset($_SERVER['REMOTE_ADDR']) && in_array($_SERVER['REMOTE_ADDR'], $this->getWhiteList())) {
             return;
         }
+
         $this->basic_auth_action_failed_access();
         do_action('basic_auth_before_401');
 
