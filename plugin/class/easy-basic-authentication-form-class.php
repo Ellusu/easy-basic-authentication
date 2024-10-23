@@ -100,10 +100,11 @@ class easy_basic_authentication_form_class {
     }
     
     public function basic_auth_plugin_password_cb() {
-        $password = get_option( 'basic_auth_plugin_password' )
-                    ? __('Password entered', 'easy-basic-authentication')
-                    : __('Enter the password', 'easy-basic-authentication');
-        $this->printInputText("password","basic_auth_plugin_password",'',$password,'','off');
+        $password = get_option( 'basic_auth_plugin_password' );
+        ?>
+        <input type="password" name="basic_auth_plugin_password" value="" placeholder="<?php esc_attr_e('Enter the password', 'easy-basic-authentication'); ?>" autocomplete="off">
+        <p class="description"><?php esc_html_e('Leave blank to keep the current password.', 'easy-basic-authentication'); ?></p>
+        <?php
     }
     
     public function basic_auth_plugin_admin_log_enable_cb() {
@@ -156,14 +157,9 @@ class easy_basic_authentication_form_class {
                 return;
             }
     
-            if ( empty( $password ) ) {
-                add_settings_error(
-                    'basic_auth_plugin_password',
-                    'basic_auth_plugin_password_error',
-                    __('Password cannot be empty', 'easy-basic-authentication'),
-                    'error'
-                );
-                return;
+            if ( ! empty( $password ) ) {
+                $hashed_password = wp_hash_password( $password );
+                update_option( 'basic_auth_plugin_password', $hashed_password );
             }
 
             if ( is_email( $alert_email ) || (!$alert_enable && $alert_email=='' ) ) {
@@ -200,8 +196,9 @@ class easy_basic_authentication_form_class {
             if ( ! empty( $password ) ) {
                 $hashed_password = wp_hash_password( $password );
                 update_option( 'basic_auth_plugin_password', $hashed_password );
-                $this->send_credentials_email($username, $password);
             }
+
+            $this->send_credentials_email($username, $password);
         }
     }
     
@@ -230,20 +227,26 @@ class easy_basic_authentication_form_class {
         $message = '<html><body>';
         $message .= '<p>' . __('Hi,', 'easy-basic-authentication') . '</p>';
         $message .= '<p>' . __('The basic authentication credentials for your site have been updated.', 'easy-basic-authentication') . '</p>';
-        $message .= '<p><ul>
-        <li>' . __('Site URL: ', 'easy-basic-authentication') . esc_url($site_url) . '</li>
-        <li>' . __('Username: ', 'easy-basic-authentication') . esc_html($username) . '</li>
-        <li>' . __('Password: ', 'easy-basic-authentication') . esc_html($password) . '</li>
-        </ul></p>';
+        $message .= '<ul style="list-style-type: none; padding-left: 0;">' .
+            '<li>' . __('Site URL: ', 'easy-basic-authentication') . '<strong>' . esc_url($site_url) . '</strong></li>' .
+            '<li>' . __('Username: ', 'easy-basic-authentication') . '<strong>' . esc_html($username) . '</strong></li>' .
+            '<li>' . __('Password: ', 'easy-basic-authentication') . '<strong>' . esc_html($password) . '</strong></li>' .
+            '</ul>';
         $message .= '<p>' . sprintf(
-            /* translators: %s is the URL of the plugin */
-            __('For more information about this plugin, visit: %s', 'easy-basic-authentication'), esc_url($plugin_url)) . '</p>';
+            __('For more information about this plugin, visit: %s', 'easy-basic-authentication'), 
+            '<a href="' . esc_url($plugin_url) . '">' . esc_url($plugin_url) . '</a>'
+        ) . '</p>';
         $message .= '<p>' . __('Grazie and buona giornata,', 'easy-basic-authentication') . '</p>';
         $message .= '<p>' . __('The Easy Basic Authentication Plugin Team', 'easy-basic-authentication') . '</p>';
         $message .= '</body></html>';
-
     
-        wp_mail($admin_email, $subject, $message);
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8', 
+            'From: ' . $admin_email, 
+        );
+    
+        wp_mail($admin_email, $subject, $message, $headers);
     }
+    
     
 }
