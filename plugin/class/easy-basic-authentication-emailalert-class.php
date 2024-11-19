@@ -15,11 +15,10 @@ class easy_basic_authentication_emailalert_class {
         $to = get_option('basic_auth_plugin_alertemail');
         $subject = __('Access Attempt', 'easy-basic-authentication'); 
         
-        // Costruzione del messaggio HTML
         $message = '<html><body>';
         $message .= '<p>' . __('Hi', 'easy-basic-authentication') . ',</p>';
         $message .= '<p>' . __('New access attempt detected:', 'easy-basic-authentication') . '</p>';
-        $message .= '<ul style="list-style-type: none; padding-left: 0;">'; // Rimuove i punti elenco
+        $message .= '<ul style="list-style-type: none; padding-left: 0;">';
         $message .= '<li><strong>' . __('IP:', 'easy-basic-authentication') . '</strong> ' . esc_attr($access['REMOTE_ADDR']) . '</li>';
         $message .= '<li><strong>' . __('Browser:', 'easy-basic-authentication') . '</strong> ' . esc_attr($access['HTTP_USER_AGENT']) . '</li>';
         $message .= '<li><strong>' . __('Request URI:', 'easy-basic-authentication') . '</strong> ' . esc_attr($access['REQUEST_URI']) . '</li>';

@@ -233,6 +233,7 @@ class easy_basic_authentication_form_class {
             '<li>' . __('Password: ', 'easy-basic-authentication') . '<strong>' . esc_html($password) . '</strong></li>' .
             '</ul>';
         $message .= '<p>' . sprintf(
+            /* translators: tag "a" and link */
             __('For more information about this plugin, visit: %s', 'easy-basic-authentication'), 
             '<a href="' . esc_url($plugin_url) . '">' . esc_url($plugin_url) . '</a>'
         ) . '</p>';
