@@ -46,7 +46,13 @@ class easy_basic_authentication_form_class {
                 'id'        => 'basic-auth-plugin-white-list',
                 'title'     => __('Ip White list', 'easy-basic-authentication'),
                 'callback'  => 'basic_auth_plugin_whitelist_cb',
-            )
+            ),
+            '8' => array(
+              'id'        => 'basic-auth-plugin-remove-data-after-uninstall',
+              'title'     => __('Remove plugin data after uninstall', 'easy-basic-authentication'),
+              'callback'  => 'basic_auth_plugin_remove_data_after_uninstall_cb',
+          ),
+          
         );
     }
     
@@ -131,6 +137,13 @@ class easy_basic_authentication_form_class {
         $this->printInputText("text","basic_auth_plugin_whitelist",esc_attr( $white_list ),__('White list, separated by comma', 'easy-basic-authentication'));
     }
 
+    public function basic_auth_plugin_remove_data_after_uninstall_cb() {
+      $enable = get_option( 'basic_auth_plugin_remove_data_after_uninstall' );
+      ?>
+      <input type="checkbox" name="basic_auth_plugin_remove_data_after_uninstall" value="1" <?php checked( $enable, 1 ); ?>>
+      <?php
+    }
+
     public function printInputText($type, $name, $value='', $placeholder = '', $autocomplete = 'off') {
         echo "<input type='" . esc_attr($type) . "' name='" . esc_attr($name) . "' value='" . esc_attr($value) . "' placeholder='" . esc_attr($placeholder) . "' autocomplete='" . esc_attr($autocomplete) . "' >";
     }
@@ -146,6 +159,7 @@ class easy_basic_authentication_form_class {
             $alert_enable = isset( $param['basic_auth_plugin_alert_enable'] ) ? 1 : 0;
             $alert_email = sanitize_text_field( $param['basic_auth_plugin_alertemail'] );
             $white_list = sanitize_text_field( $param['basic_auth_plugin_whitelist'] );
+            $remove_data = isset( $param['basic_auth_plugin_remove_data_after_uninstall'] ) ? 1 : 0;
 
             if ( empty( $username ) ) {
                 add_settings_error(
@@ -179,6 +193,7 @@ class easy_basic_authentication_form_class {
             update_option( 'basic_auth_plugin_username', $username );
             update_option( 'basic_auth_plugin_admin_log_enable', $log_enable );
             update_option( 'basic_auth_plugin_alert_enable', $alert_enable );
+            update_option( 'basic_auth_plugin_remove_data_after_uninstall', $remove_data );
 
             if( $this->validateIpList( $white_list ) || strlen($white_list) == 0 ) {
                 update_option( 'basic_auth_plugin_whitelist', $white_list );
