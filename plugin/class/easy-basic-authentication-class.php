@@ -59,8 +59,7 @@ class easy_basic_authentication_class {
         do_action('basic_auth_before_401');
 
         if($admin_area) {
-            do_action('basic_auth_before_401_admin_area');
-            
+            do_action('basic_auth_before_401_admin_area');            
             header( 'WWW-Authenticate: Basic realm="My Website"' );
             header( 'HTTP/1.0 401 Unauthorized' );
             exit;
