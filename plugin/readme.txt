@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
 Tested up to: 6.7.1
-Stable tag: 3.4.1
+Stable tag: 3.5.0
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
@@ -55,32 +55,24 @@ Protect your WordPress site with basic authentication quickly and reliably. Easy
 
 If you're having trouble logging in due to the basic authentication, you can reset it and regain access by following these steps:
 
-1. **Connect to your website via FTP.**
-2. **Navigate to the plugin directory:**
+1 **Connect to your website via FTP.**
+2 **Navigate to the plugin directory:**
 
-   <pre>
-   wp-content/plugins/easy-basic-authentication/class/
-   </pre>
+   <pre>wp-content/plugins/easy-basic-authentication/class/</pre>
 
-3. **Locate the file:**
+3 **Locate the file:**
 
-   <pre>
-   easy-basic-authentication-class.php
-   </pre>
+   <pre>easy-basic-authentication-class.php</pre>
 
-4. **Find the following line:**
+4 **Find the following line:**
 
-   <pre>
-   add_action( 'init', array($this,'basic_auth_admin') );
-   </pre>
+   <pre>add_action( 'init', array($this,'basic_auth_admin') );</pre>
 
-5. **Comment out that line** by adding a `#` at the beginning:
+5 **Comment out that line** by adding a `#` at the beginning:
 
-   <pre>
-   #add_action( 'init', array($this,'basic_auth_admin') );
-   </pre>
+   <pre>#add_action( 'init', array($this,'basic_auth_admin') );</pre>
 
-6. **Save the file** and re-upload it to your server.
+6 **Save the file** and re-upload it to your server.
 
 This will disable the basic authentication temporarily, allowing you to log in. Once logged in, you can adjust the plugin settings as needed.
 

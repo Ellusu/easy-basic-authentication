@@ -134,7 +134,7 @@ class easy_basic_authentication_form_class {
     
     public function basic_auth_plugin_whitelist_cb() {
         $white_list = get_option( 'basic_auth_plugin_whitelist' );
-        $this->printInputText("text","basic_auth_plugin_whitelist",esc_attr( $white_list ),__('White list, separated by comma', 'easy-basic-authentication'));
+        $this->printInputText("text","basic_auth_plugin_whitelist",esc_attr( $white_list ),__('White list, separated by comma. Ex. 127.0.0.1, 1.1.1.1/20, 1.1.0.0 - 1.1.0.255', 'easy-basic-authentication'));
     }
 
     public function basic_auth_plugin_remove_data_after_uninstall_cb() {
@@ -225,13 +225,35 @@ class easy_basic_authentication_form_class {
         $ips = explode(',', $white_list);
         foreach ($ips as $ip) {
             $ip = trim($ip);
-            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-                return false;
+    
+            // ✅ Valida IP singoli
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                continue;
             }
+    
+            // ✅ Valida subnet CIDR (es. 1.1.1.1/20)
+            if (preg_match('/^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/', $ip)) {
+                list($subnet, $mask) = explode('/', $ip);
+                if (filter_var($subnet, FILTER_VALIDATE_IP) && $mask >= 0 && $mask <= 32) {
+                    continue;
+                }
+            }
+    
+            // ✅ Valida range IP (es. 1.1.0.0 - 1.1.0.255)
+            if (preg_match('/^(\d{1,3}\.){3}\d{1,3}\s*-\s*(\d{1,3}\.){3}\d{1,3}$/', $ip)) {
+                list($start_ip, $end_ip) = array_map('trim', explode('-', $ip));
+                if (filter_var($start_ip, FILTER_VALIDATE_IP) && filter_var($end_ip, FILTER_VALIDATE_IP)) {
+                    continue;
+                }
+            }
+    
+            // ❌ Se non passa nessuna validazione, ritorna false
+            return false;
         }
+    
         return true;
     }
-
+    
     public function send_credentials_email($username, $password) {
         $admin_email = get_option('admin_email'); 
         $site_url = home_url(); 

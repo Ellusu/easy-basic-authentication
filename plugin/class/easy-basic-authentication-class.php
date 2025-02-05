@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 require_once (dirname(__FILE__).'/easy-basic-authentication-log-class.php');
 require_once (dirname(__FILE__).'/easy-basic-authentication-emailalert-class.php');
@@ -27,7 +27,7 @@ class easy_basic_authentication_class {
         if(get_option( 'basic_auth_plugin_enable' ) && get_option( 'basic_auth_plugin_admin_enable' )){
             add_action( 'init', array($this,'basic_auth_root') );
         }
-
+        
         add_action( 'admin_menu', array($this,'basic_auth_plugin_menu' ));
         add_action( 'admin_init', array($this->form,'basic_auth_plugin_settings_init' ));
 
@@ -35,14 +35,14 @@ class easy_basic_authentication_class {
             $post_data = $_POST;
             $this->form->basic_auth_plugin_save_settings($post_data);
         });
-
+        
     }
 
     public function basic_auth_root()
     {
         $user = get_option('basic_auth_plugin_username');
         $pass = get_option('basic_auth_plugin_password');
-
+        
         if ($this->whiteListChecker()) {
             return;
         }
@@ -59,11 +59,48 @@ class easy_basic_authentication_class {
             $this->do_exit(true);
         }
     }
-
+      
     public function whiteListChecker() {
-        if (isset($_SERVER['REMOTE_ADDR']) && in_array($_SERVER['REMOTE_ADDR'], $this->getWhiteList())) {
-            return true;
+        if (!isset($_SERVER['REMOTE_ADDR'])) {
+            return false;
         }
+    
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $whitelist = $this->getWhiteList();
+
+        foreach ($whitelist as $entry) {
+            if ($this->isIpAllowed($ip, $entry)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private function isIpAllowed($ip, $entry) {
+        if (filter_var($entry, FILTER_VALIDATE_IP)) {
+            return $ip === $entry;
+        } elseif (strpos($entry, '/') !== false) {
+            return $this->isIpInCidr($ip, $entry);
+        } elseif (strpos($entry, '-') !== false) {
+            return $this->isIpInRange($ip, $entry);
+        }
+        return false;
+    }
+    
+    private function isIpInCidr($ip, $cidr) {
+        list($subnet, $mask) = explode('/', $cidr);
+        $ipLong = ip2long($ip);
+        $subnetLong = ip2long($subnet);
+        $maskLong = -1 << (32 - $mask);
+        return ($ipLong & $maskLong) === ($subnetLong & $maskLong);
+    }
+    
+    private function isIpInRange($ip, $range) {
+        list($start, $end) = array_map('trim', explode('-', $range));
+        $ipLong = ip2long($ip);
+        $startLong = ip2long($start);
+        $endLong = ip2long($end);
+        return ($ipLong >= $startLong && $ipLong <= $endLong);
     }
 
     public function do_exit($admin_area = false) {
@@ -72,7 +109,7 @@ class easy_basic_authentication_class {
         do_action('basic_auth_before_401');
 
         if($admin_area) {
-            do_action('basic_auth_before_401_admin_area');
+            do_action('basic_auth_before_401_admin_area');            
             header( 'WWW-Authenticate: Basic realm="My Website"' );
             header( 'HTTP/1.0 401 Unauthorized' );
             exit;
@@ -89,8 +126,8 @@ class easy_basic_authentication_class {
 
     public function basic_auth_plugin_menu() {
         add_menu_page(
-            __('Configurations for Easy Basic Authentication', 'easy-basic-authentication'),
-            __('Easy Basic A.', 'easy-basic-authentication'),
+            __('Configurations for Easy Basic Authentication', 'easy-basic-authentication'), 
+            __('Easy Basic A.', 'easy-basic-authentication'), 
             'manage_options',
             'basic-auth-plugin',
             array($this->form, 'basic_auth_plugin_settings_page'),
@@ -99,8 +136,8 @@ class easy_basic_authentication_class {
         if($this->log->is_enabled()) {
             $this->log->getMenu();
         }
-    }
-
+    }  
+    
     public function basic_auth_action_failed_access() {
         if($this->log->is_enabled()) {
             $this->log->update_status($_SERVER);
