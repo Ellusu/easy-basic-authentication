@@ -4,12 +4,14 @@ require_once (dirname(__FILE__).'/easy-basic-authentication-log-class.php');
 require_once (dirname(__FILE__).'/easy-basic-authentication-emailalert-class.php');
 require_once (dirname(__FILE__).'/easy-basic-authentication-form-class.php');
 require_once (dirname(__FILE__).'/easy-basic-authentication-notice-class.php');
+require_once (dirname(__FILE__).'/easy-basic-authentication-compatcheck-class.php');
 
 class easy_basic_authentication_class {
 
     private $log;
     private $email;
     private $form;
+    private $compatcheck;
 
     public function __construct()
     {
@@ -17,6 +19,8 @@ class easy_basic_authentication_class {
         $this->email = new easy_basic_authentication_emailalert_class();
         $this->form = new easy_basic_authentication_form_class();
         $notice = new easy_basic_authentication_notice_class();
+        $this->compatcheck = new easy_basic_authentication_compatcheck_class();
+        $this->compatcheck->register_hooks();
 
         if(get_option( 'basic_auth_plugin_admin_enable' )) {
             if (in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php'))) {
