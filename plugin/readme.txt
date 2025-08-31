@@ -1,4 +1,4 @@
-=== Easy Basic Authentication ===
+=== Easy Basic Authentication – Add basic auth to site or admin area ===
 Contributors: matteoenna, ashkanahmadi
 Tags: authentication, security, WordPress security, access control, login
 Donate link: https://www.paypal.me/matteoedev/2.55
@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
 Tested up to: 6.8.1
-Stable tag: 3.7.0
+Stable tag: 3.8.0
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
