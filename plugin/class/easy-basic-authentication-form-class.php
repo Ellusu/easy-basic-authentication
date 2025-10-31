@@ -48,6 +48,11 @@ class easy_basic_authentication_form_class {
                 'callback'  => 'basic_auth_plugin_whitelist_cb',
             ),
             '8' => array(
+                'id'        => 'basic-auth-plugin-url-white-list',
+                'title'     => __('Url White list', 'easy-basic-authentication'),
+                'callback'  => 'basic_auth_plugin_urlwhitelist_cb',
+            ),
+            '9' => array(
               'id'        => 'basic-auth-plugin-remove-data-after-uninstall',
               'title'     => __('Remove plugin data after uninstall', 'easy-basic-authentication'),
               'callback'  => 'basic_auth_plugin_remove_data_after_uninstall_cb',
@@ -136,6 +141,11 @@ class easy_basic_authentication_form_class {
         $white_list = get_option( 'basic_auth_plugin_whitelist' );
         $this->printInputText("text","basic_auth_plugin_whitelist",esc_attr( $white_list ),__('White list, separated by comma. Ex. 127.0.0.1, 1.1.1.1/20, 1.1.0.0 - 1.1.0.255', 'easy-basic-authentication'));
     }
+    
+    public function basic_auth_plugin_urlwhitelist_cb() {
+        $white_list = get_option( 'basic_auth_plugin_urlwhitelist' );
+        $this->printInputText("text","basic_auth_plugin_urlwhitelist",esc_attr( $white_list ),__('Url white list, separated by comma. Ex. /json/wp-, www.google.it,', 'easy-basic-authentication'));
+    }
 
     public function basic_auth_plugin_remove_data_after_uninstall_cb() {
       $enable = get_option( 'basic_auth_plugin_remove_data_after_uninstall' );
@@ -160,6 +170,7 @@ class easy_basic_authentication_form_class {
             $alert_email = sanitize_text_field( $param['basic_auth_plugin_alertemail'] );
             $white_list = sanitize_text_field( $param['basic_auth_plugin_whitelist'] );
             $remove_data = isset( $param['basic_auth_plugin_remove_data_after_uninstall'] ) ? 1 : 0;
+            $url_white_list = sanitize_text_field( $param['basic_auth_plugin_urlwhitelist'] );
 
             if ( empty( $username ) ) {
                 add_settings_error(
@@ -194,6 +205,7 @@ class easy_basic_authentication_form_class {
             update_option( 'basic_auth_plugin_admin_log_enable', $log_enable );
             update_option( 'basic_auth_plugin_alert_enable', $alert_enable );
             update_option( 'basic_auth_plugin_remove_data_after_uninstall', $remove_data );
+            update_option( 'basic_auth_plugin_urlwhitelist', $url_white_list );
 
             if( $this->validateIpList( $white_list ) || strlen($white_list) == 0 ) {
                 update_option( 'basic_auth_plugin_whitelist', $white_list );

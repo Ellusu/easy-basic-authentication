@@ -51,6 +51,10 @@ class easy_basic_authentication_class {
             return;
         }
 
+        if ($this->urlWhiteListChecker()) {
+            return;
+        }
+
         if (!isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['HTTP_AUTHORIZATION'])) {
             if (stripos($_SERVER['HTTP_AUTHORIZATION'], 'basic') === 0) {
                 list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
@@ -64,6 +68,41 @@ class easy_basic_authentication_class {
         }
     }
       
+    public function urlWhiteListChecker() {
+        if (empty($_SERVER['HTTP_HOST']) || empty($_SERVER['REQUEST_URI'])) {
+            return false;
+        }
+
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $currentUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+        $whitelist = $this->getUrlWhiteList();
+
+        foreach ($whitelist as $entry) {
+            if ($this->isUrlAllowed($currentUrl, $entry)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isUrlAllowed($currentUrl, $entry) {
+        $currentUrl = rtrim($currentUrl, '/');
+        $entry = rtrim($entry, '/');
+
+        if (strpos($entry, '/') === 0) {
+            $path = wp_parse_url($currentUrl, PHP_URL_PATH);
+            return stripos($path, $entry) !== false;
+        }
+
+        if (!preg_match('#^https?://#i', $entry)) {
+            $entry = 'http://' . $entry;
+        }
+
+        return stripos($currentUrl, $entry) === 0;
+    }
+
     public function whiteListChecker() {
         if (!isset($_SERVER['REMOTE_ADDR'])) {
             return false;
@@ -126,6 +165,10 @@ class easy_basic_authentication_class {
 
     public function getWhiteList() {
         return get_option( 'basic_auth_plugin_whitelist' )?explode(',',get_option( 'basic_auth_plugin_whitelist' )):[];
+    }
+
+    public function getUrlWhiteList() {
+        return get_option( 'basic_auth_plugin_urlwhitelist' )?explode(',',get_option( 'basic_auth_plugin_urlwhitelist' )):[];
     }
 
     public function basic_auth_plugin_menu() {
