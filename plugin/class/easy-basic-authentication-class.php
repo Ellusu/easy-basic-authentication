@@ -57,7 +57,7 @@ class easy_basic_authentication_class {
 
         if (!isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['HTTP_AUTHORIZATION'])) {
             if (stripos($_SERVER['HTTP_AUTHORIZATION'], 'basic') === 0) {
-                list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+                list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)), 2);
             }
         }
 
@@ -93,11 +93,12 @@ class easy_basic_authentication_class {
 
         if (strpos($entry, '/') === 0) {
             $path = wp_parse_url($currentUrl, PHP_URL_PATH);
-            return stripos($path, $entry) !== false;
+            return stripos($path, $entry) === 0;
         }
 
         if (!preg_match('#^https?://#i', $entry)) {
-            $entry = 'http://' . $entry;
+            $scheme = wp_parse_url($currentUrl, PHP_URL_SCHEME) ?: 'https';
+            $entry = $scheme . '://' . $entry;
         }
 
         return stripos($currentUrl, $entry) === 0;

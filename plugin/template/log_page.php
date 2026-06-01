@@ -2,6 +2,7 @@
     <h2><?php echo esc_html__('Unauthorized access log', 'easy-basic-authentication'); ?></h2>
     <p>
     <form method="post" action="<?php echo esc_url(admin_url('admin.php?page=basic-auth-login')); ?>">
+        <?php wp_nonce_field('eba_clear_logs', 'eba_clear_nonce'); ?>
         <input type="hidden" name="clear_mode" value="1">
         <button type="submit" class="button button-primary">
             <?php echo esc_html__('Clear log', 'easy-basic-authentication'); ?>

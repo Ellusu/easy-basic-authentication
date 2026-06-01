@@ -29,6 +29,10 @@ class easy_basic_authentication_log_class {
 
         $logs = apply_filters('basic_auth_logs_entry', $logs);
 
+        if (count($logs) > 500) {
+            $logs = array_slice($logs, -500);
+        }
+
         update_option('basic_auth_failure_logs', $logs);
     }
 
@@ -65,6 +69,7 @@ class easy_basic_authentication_log_class {
     
     public function basic_auth_login_page() {
         if(array_key_exists('clear_mode',$_POST)) {
+            check_admin_referer('eba_clear_logs', 'eba_clear_nonce');
             update_option('basic_auth_failure_logs', array());
         }
         $user_log_data = array_reverse($this->basic_auth_get_log_failed_access());

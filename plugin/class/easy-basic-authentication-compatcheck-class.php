@@ -17,17 +17,17 @@ class easy_basic_authentication_compatcheck_class {
         if (!isset($_SERVER['PHP_AUTH_USER'])) {
             $response['message'] = __('Authorization header not received. It may have been blocked by the browser or the server (especially on HTTP).', 'easy-basic-authentication');
         } else {
-            $expected_user = get_option('basic_auth_plugin_username');
-            $expected_pass = get_option('basic_auth_plugin_password');
+            $received_user = $_SERVER['PHP_AUTH_USER'];
+            $received_token = isset($_SERVER['PHP_AUTH_PW']) ? wp_unslash($_SERVER['PHP_AUTH_PW']) : '';
 
             if (
-                $_SERVER['PHP_AUTH_USER'] === $expected_user &&
-                wp_unslash($_SERVER['PHP_AUTH_PW']) === $expected_pass
+                $received_user === 'eba-compat-test' &&
+                wp_verify_nonce($received_token, 'eba_compat_test')
             ) {
                 $response['success'] = true;
                 $response['message'] = __('Authentication received successfully. Basic Auth is compatible!', 'easy-basic-authentication');
             } else {
-                $response['message'] = __('Credentials received but incorrect.', 'easy-basic-authentication');
+                $response['message'] = __('Authorization header received but could not be verified. Please try again.', 'easy-basic-authentication');
             }
         }
 
@@ -36,6 +36,7 @@ class easy_basic_authentication_compatcheck_class {
     }
 
     public static function render_button_html() {
+        $test_nonce = wp_create_nonce('eba_compat_test');
         ?>
         <h2><?php echo __('Compatibility Test', 'easy-basic-authentication'); ?></h2>
         <p><?php echo __('Click the button below to check if your server correctly supports Basic Authentication.', 'easy-basic-authentication'); ?></p>
@@ -45,15 +46,14 @@ class easy_basic_authentication_compatcheck_class {
         document.getElementById('eba-test-button').addEventListener('click', function(e) {
             e.preventDefault();
 
-            const username = <?php echo json_encode(get_option('basic_auth_plugin_username')); ?>;
-            const password = <?php echo json_encode(wp_unslash(get_option('basic_auth_plugin_password'))); ?>;
+            const testToken = <?php echo json_encode($test_nonce); ?>;
             const resultBox = document.getElementById('eba-test-result');
 
             resultBox.innerHTML = '⌛ ' + <?php echo json_encode(__('Waiting for response...', 'easy-basic-authentication')); ?>;
 
             fetch(ajaxurl + '?action=eba_test_auth', {
                 headers: {
-                    'Authorization': 'Basic ' + btoa(username + ':' + password)
+                    'Authorization': 'Basic ' + btoa('eba-compat-test:' + testToken)
                 }
             })
             .then(response => response.text())

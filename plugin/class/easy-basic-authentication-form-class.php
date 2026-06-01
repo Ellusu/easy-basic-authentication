@@ -161,10 +161,13 @@ class easy_basic_authentication_form_class {
 
     public function basic_auth_plugin_save_settings($param) {
         if ( isset( $param['eba_submit'] ) ) {
+            if ( ! isset( $param['_wpnonce'] ) || ! wp_verify_nonce( $param['_wpnonce'], 'basic-auth-plugin-settings-options' ) ) {
+                return;
+            }
             $admin_enable = isset( $param['basic_auth_plugin_admin_enable'] ) ? 1 : 0;
             $enable = isset( $param['basic_auth_plugin_enable'] ) ? 1 : 0;
             $username = sanitize_text_field( $param['basic_auth_plugin_username'] );
-            $password = sanitize_text_field( $param['basic_auth_plugin_password'] );
+            $password = isset( $param['basic_auth_plugin_password'] ) ? wp_unslash( $param['basic_auth_plugin_password'] ) : '';
             $log_enable = isset( $param['basic_auth_plugin_admin_log_enable'] ) ? 1 : 0;
             $alert_enable = isset( $param['basic_auth_plugin_alert_enable'] ) ? 1 : 0;
             $alert_email = sanitize_text_field( $param['basic_auth_plugin_alertemail'] );
@@ -220,11 +223,6 @@ class easy_basic_authentication_form_class {
 
             }
                
-            if ( ! empty( $password ) ) {
-                $hashed_password = wp_hash_password( $password );
-                update_option( 'basic_auth_plugin_password', $hashed_password );
-            }
-
             $this->send_credentials_email($username, $password);
         }
     }
@@ -279,7 +277,7 @@ class easy_basic_authentication_form_class {
         $message .= '<ul style="list-style-type: none; padding-left: 0;">' .
             '<li>' . __('Site URL: ', 'easy-basic-authentication') . '<strong>' . esc_url($site_url) . '</strong></li>' .
             '<li>' . __('Username: ', 'easy-basic-authentication') . '<strong>' . esc_html($username) . '</strong></li>' .
-            '<li>' . __('Password: ', 'easy-basic-authentication') . '<strong>' . esc_html($password) . '</strong></li>' .
+            '<li>' . __('Password: ', 'easy-basic-authentication') . '<strong>' . __('[updated — not shown for security]', 'easy-basic-authentication') . '</strong></li>' .
             '</ul>';
         $message .= '<p>' . sprintf(
             /* translators: tag "a" and link */
