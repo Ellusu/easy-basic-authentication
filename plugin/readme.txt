@@ -5,8 +5,8 @@ Donate link: https://www.paypal.me/matteoedev/2.55
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Requires PHP: 7.2.5
-Tested up to: 7.0
-Stable tag: 4.0.0
+Tested up to: 7.1
+Stable tag: 4.1.0
 License: GPLv2 or later
 
 Secure your WordPress site with easy and effective basic authentication. Restrict access, monitor attempts, and enhance security.
@@ -81,3 +81,13 @@ If you need further assistance, feel free to reach out.
 ## GitHub Repository
 
 You can find the source code and contribute to the project on GitHub: [Easy Basic Authentication on GitHub](https://github.com/Ellusu/easy-basic-authentication)
+
+== Changelog ==
+
+= 4.1.0 =
+* Fixed: an access attempt was logged, and an alert email sent, for every visitor. Basic Authentication always makes a first request without credentials, and that request was being counted as a failed attempt. Only requests that send wrong credentials are recorded now.
+* Fixed: the access log was stored in an autoloaded option, so up to 500 entries (around 144 KB) were loaded on every request to the site. It is now loaded only where it is used, and existing logs are migrated on update.
+* Fixed: on a site protected in full, WP-CLI and any command line script stopped silently. HTTP authentication is no longer applied outside HTTP requests.
+* The 401 status is now sent through WordPress instead of a hardcoded HTTP/1.0 header.
+* The authentication realm can be changed with the new `basic_auth_realm` filter.
+* Tested up to WordPress 7.1.

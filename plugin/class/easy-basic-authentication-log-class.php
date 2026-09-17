@@ -33,7 +33,9 @@ class easy_basic_authentication_log_class {
             $logs = array_slice($logs, -500);
         }
 
-        update_option('basic_auth_failure_logs', $logs);
+        // Terzo parametro false: il log puo arrivare a 500 voci (circa 144 KB) e non
+        // serve a nessuna richiesta del front-end, quindi non va caricato sempre.
+        update_option('basic_auth_failure_logs', $logs, false);
     }
 
     public function getMenu() {
@@ -82,6 +84,8 @@ class easy_basic_authentication_log_class {
         foreach ($logs as &$entry) {
             $entry['viewed'] = 1;
         }
-        update_option('basic_auth_failure_logs', $logs);
+        // Terzo parametro false: il log puo arrivare a 500 voci (circa 144 KB) e non
+        // serve a nessuna richiesta del front-end, quindi non va caricato sempre.
+        update_option('basic_auth_failure_logs', $logs, false);
     }
 }

@@ -1,3 +1,8 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+?>
 <div class="wrap">
     <h2><?php echo esc_html__('Unauthorized access log', 'easy-basic-authentication'); ?></h2>
     <p>
@@ -21,14 +26,14 @@
         </thead>
         <tbody>
             <?php
-            foreach ($user_log_data as $entry) {
-                $new = $entry['viewed']?'':' ('.esc_html__('new', 'easy-basic-authentication').')';
+            foreach ($user_log_data as $basic_auth_entry) {
+                $basic_auth_new = $basic_auth_entry['viewed']?'':' ('.esc_html__('new', 'easy-basic-authentication').')';
                 echo "<tr>";
-                echo "<td>" . esc_html($entry['id']) .esc_attr($new). "</td>";
-                echo "<td>" . esc_html($entry['ip']) . "</td>";
-                echo "<td>" . esc_html($entry['data']) . "</td>";
-                echo "<td>" . esc_html($entry['browser']) . "</td>";
-                echo "<td>" . esc_html(isset($entry['request_uri'])?$entry['request_uri']:'') . "</td>";
+                echo "<td>" . esc_html($basic_auth_entry['id']) .esc_attr($basic_auth_new). "</td>";
+                echo "<td>" . esc_html($basic_auth_entry['ip']) . "</td>";
+                echo "<td>" . esc_html($basic_auth_entry['data']) . "</td>";
+                echo "<td>" . esc_html($basic_auth_entry['browser']) . "</td>";
+                echo "<td>" . esc_html(isset($basic_auth_entry['request_uri'])?$basic_auth_entry['request_uri']:'') . "</td>";
                 echo "</tr>";
             }
             ?>

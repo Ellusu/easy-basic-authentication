@@ -1,6 +1,10 @@
-<?php 
-$dir_file = realpath(dirname(__FILE__) . '/../class/easy-basic-authentication-class.php'); 
-$content_file = "add_action( 'init', array(\$this,'basic_auth_admin') );";
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+$basic_auth_dir_file = realpath(dirname(__FILE__) . '/../class/easy-basic-authentication-class.php'); 
+$basic_auth_content_file = "add_action( 'init', array(\$this,'basic_auth_admin') );";
 ?>
 
 <div class="wrap easy-basic-settings">
@@ -11,8 +15,8 @@ $content_file = "add_action( 'init', array(\$this,'basic_auth_admin') );";
     <?php if ( ! is_ssl() ) : ?>
         <div class="notice notice-warning">
             <p>
-                <strong><?php echo __('Warning:', 'easy-basic-authentication'); ?></strong>
-                <?php echo __('Your site is currently not using HTTPS. Basic Authentication may not work correctly over HTTP due to browser and server restrictions.', 'easy-basic-authentication'); ?>
+                <strong><?php esc_html_e('Warning:', 'easy-basic-authentication'); ?></strong>
+                <?php esc_html_e('Your site is currently not using HTTPS. Basic Authentication may not work correctly over HTTP due to browser and server restrictions.', 'easy-basic-authentication'); ?>
             </p>
         </div>
     <?php endif; ?>
@@ -42,14 +46,16 @@ $content_file = "add_action( 'init', array(\$this,'basic_auth_admin') );";
                 <li><?php echo esc_html__('Navigate to the plugin directory.', 'easy-basic-authentication'); ?></li>
                 <li><?php 
                     echo sprintf(
+                        /* translators: %s: full path of the plugin file to edit. */
                         esc_html__('Locate the file named %s.', 'easy-basic-authentication'),
-                        esc_attr($dir_file)
+                        esc_attr($basic_auth_dir_file)
                     ); ?>
                 </li>
                 <li><?php
                     echo sprintf(
+                        /* translators: %s: line of PHP code to comment out. */
                         esc_html__('Find the line containing %s.', 'easy-basic-authentication'),
-                        esc_attr($content_file)
+                        esc_attr($basic_auth_content_file)
                     ); ?>
                 </li>
                 <li><?php echo esc_html__('Comment out that line by adding "#" at the beginning.', 'easy-basic-authentication'); ?></li>

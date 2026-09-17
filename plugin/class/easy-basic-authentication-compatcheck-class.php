@@ -17,8 +17,12 @@ class easy_basic_authentication_compatcheck_class {
         if (!isset($_SERVER['PHP_AUTH_USER'])) {
             $response['message'] = __('Authorization header not received. It may have been blocked by the browser or the server (especially on HTTP).', 'easy-basic-authentication');
         } else {
-            $received_user = $_SERVER['PHP_AUTH_USER'];
-            $received_token = isset($_SERVER['PHP_AUTH_PW']) ? wp_unslash($_SERVER['PHP_AUTH_PW']) : '';
+            // Qui la "password" e un nonce alfanumerico generato da noi, quindi a
+            // differenza del percorso di autenticazione vero si puo sanitizzare.
+            $received_user  = sanitize_text_field( wp_unslash( $_SERVER['PHP_AUTH_USER'] ) );
+            $received_token = isset( $_SERVER['PHP_AUTH_PW'] )
+                ? sanitize_text_field( wp_unslash( $_SERVER['PHP_AUTH_PW'] ) )
+                : '';
 
             if (
                 $received_user === 'eba-compat-test' &&
@@ -38,9 +42,9 @@ class easy_basic_authentication_compatcheck_class {
     public static function render_button_html() {
         $test_nonce = wp_create_nonce('eba_compat_test');
         ?>
-        <h2><?php echo __('Compatibility Test', 'easy-basic-authentication'); ?></h2>
-        <p><?php echo __('Click the button below to check if your server correctly supports Basic Authentication.', 'easy-basic-authentication'); ?></p>
-        <button id="eba-test-button" class="button button-secondary"><?php echo __('Run Compatibility Test', 'easy-basic-authentication'); ?></button>
+        <h2><?php esc_html_e('Compatibility Test', 'easy-basic-authentication'); ?></h2>
+        <p><?php esc_html_e('Click the button below to check if your server correctly supports Basic Authentication.', 'easy-basic-authentication'); ?></p>
+        <button id="eba-test-button" class="button button-secondary"><?php esc_html_e('Run Compatibility Test', 'easy-basic-authentication'); ?></button>
         <div id="eba-test-result" style="margin-top: 1em;"></div>
         <script>
         document.getElementById('eba-test-button').addEventListener('click', function(e) {

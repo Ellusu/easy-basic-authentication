@@ -62,10 +62,10 @@ class easy_basic_authentication_form_class {
     }
     
     public function basic_auth_plugin_settings_init() {
-        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_admin_enable' );
-        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_enable' );
-        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_username' );
-        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_admin_log_enable' );
+        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_admin_enable', array( 'sanitize_callback' => 'absint' ) );
+        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_enable', array( 'sanitize_callback' => 'absint' ) );
+        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_username', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+        register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_admin_log_enable', array( 'sanitize_callback' => 'absint' ) );
     
         add_settings_section(
             'basic-auth-plugin-section',
