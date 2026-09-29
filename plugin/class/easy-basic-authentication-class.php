@@ -82,6 +82,14 @@ class easy_basic_authentication_class {
             return;
         }
 
+        // wp-cron.php chiude la risposta con fastcgi_finish_request() prima ancora di
+        // caricare WordPress: quando arriviamo qui gli header sono gia partiti. La sfida
+        // 401 non raggiunge nessuno, lascia un warning "headers already sent" nel log a
+        // ogni giro, e l'exit che la segue ferma tutte le azioni pianificate del sito.
+        if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+            return;
+        }
+
         $user = get_option('basic_auth_plugin_username');
         $pass = get_option('basic_auth_plugin_password');
         
@@ -90,6 +98,10 @@ class easy_basic_authentication_class {
         }
 
         if ($this->urlWhiteListChecker()) {
+            return;
+        }
+
+        if ($this->tokenChecker()) {
             return;
         }
 
@@ -234,6 +246,97 @@ class easy_basic_authentication_class {
         $startLong = ip2long($start);
         $endLong = ip2long($end);
         return ($ipLong >= $startLong && $ipLong <= $endLong);
+    }
+
+    /**
+     * Un crawler o un servizio esterno sta passando col token d'accesso?
+     *
+     * Serve a far entrare chi non puo usare l'autenticazione HTTP: un crawler, un
+     * controllo di raggiungibilita, un front-end headless. Il token vale solo per
+     * il sito: l'amministrazione e la pagina di accesso restano protette, perche
+     * un crawler non ha motivo di entrarci e aprirgliele sarebbe rischio gratuito.
+     *
+     * @return bool
+     */
+    public function tokenChecker() {
+        $token = (string) get_option('basic_auth_plugin_access_token', '');
+
+        // Funzione spenta finche non si genera un token.
+        if ('' === $token) {
+            return false;
+        }
+
+        // Mai per l'amministrazione o la pagina di accesso.
+        if (is_admin() || $this->isLoginRequest()) {
+            return false;
+        }
+
+        $sent = $this->getRequestToken();
+
+        if ('' === $sent) {
+            return false;
+        }
+
+        // hash_equals: il confronto non deve rivelare quanti caratteri erano giusti.
+        if (!hash_equals($token, $sent)) {
+            // Un token sbagliato e un tentativo deliberato, non il primo giro a vuoto
+            // del protocollo: va segnalato come una password sbagliata.
+            $this->basic_auth_action_failed_access();
+
+            return false;
+        }
+
+        /**
+         * Scatta quando una richiesta entra col token invece che con le credenziali.
+         */
+        do_action('basic_auth_token_access_granted');
+
+        return true;
+    }
+
+    /**
+     * Il token inviato con la richiesta, da uno dei due header accettati.
+     *
+     * @return string
+     */
+    private function getRequestToken() {
+        // Header dedicato: la strada piu pulita.
+        if (!empty($_SERVER['HTTP_X_BASIC_AUTH_TOKEN'])) {
+            return trim(sanitize_text_field(wp_unslash($_SERVER['HTTP_X_BASIC_AUTH_TOKEN'])));
+        }
+
+        // Authorization: Bearer, per i servizi che sanno mandare solo questo.
+        if (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $header = sanitize_text_field(wp_unslash($_SERVER['HTTP_AUTHORIZATION']));
+
+            if (preg_match('#^Bearer\s+(\S+)$#i', $header, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Se la richiesta corrente e la pagina di accesso.
+     *
+     * @return bool
+     */
+    private function isLoginRequest() {
+        $pagenow = isset($GLOBALS['pagenow']) ? $GLOBALS['pagenow'] : '';
+
+        if (in_array($pagenow, array('wp-login.php', 'wp-register.php'), true)) {
+            return true;
+        }
+
+        if (empty($_SERVER['REQUEST_URI'])) {
+            return false;
+        }
+
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- solo confronto, mai stampato.
+        $uri = wp_unslash($_SERVER['REQUEST_URI']);
+
+        return false !== stripos($uri, 'wp-login.php') || false !== stripos($uri, 'wp-register.php');
     }
 
     /**

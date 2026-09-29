@@ -5,7 +5,24 @@ class easy_basic_authentication_form_class {
     public $form_field = [];
 
     public function __construct()
-    {   
+    {
+        // Qui non si traduce nulla. Il plugin parte su plugins_loaded, che viene
+        // prima di init: da WordPress 6.7 chiamare __() a quel punto fa scattare
+        // la notice "Translation loading was triggered too early". L'elenco dei
+        // campi si costruisce quando serve davvero, cioe su admin_init.
+    }
+
+    /**
+     * Definizione dei campi del modulo impostazioni.
+     *
+     * @return array
+     */
+    public function get_form_fields()
+    {
+        if ( ! empty( $this->form_field ) ) {
+            return $this->form_field;
+        }
+
         $this->form_field = array(
             '0' => array(
                 'id'        => 'basic-auth-plugin-admin-enable',
@@ -53,14 +70,21 @@ class easy_basic_authentication_form_class {
                 'callback'  => 'basic_auth_plugin_urlwhitelist_cb',
             ),
             '9' => array(
+                'id'        => 'basic-auth-plugin-access-token',
+                'title'     => __('Access token for crawlers', 'easy-basic-authentication'),
+                'callback'  => 'basic_auth_plugin_access_token_cb',
+            ),
+            '10' => array(
               'id'        => 'basic-auth-plugin-remove-data-after-uninstall',
               'title'     => __('Remove plugin data after uninstall', 'easy-basic-authentication'),
               'callback'  => 'basic_auth_plugin_remove_data_after_uninstall_cb',
           ),
           
         );
+
+        return $this->form_field;
     }
-    
+
     public function basic_auth_plugin_settings_init() {
         register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_admin_enable', array( 'sanitize_callback' => 'absint' ) );
         register_setting( 'basic-auth-plugin-settings', 'basic_auth_plugin_enable', array( 'sanitize_callback' => 'absint' ) );
@@ -74,7 +98,7 @@ class easy_basic_authentication_form_class {
             'basic-auth-plugin-settings'
         );
     
-        foreach($this->form_field as $field) {
+        foreach($this->get_form_fields() as $field) {
             add_settings_field(
                 $field['id'],
                 esc_html($field['title']),
@@ -137,6 +161,31 @@ class easy_basic_authentication_form_class {
         $this->printInputText("text","basic_auth_plugin_alertemail",esc_attr( $email_alert ),__('Enter the email', 'easy-basic-authentication'));
     }
     
+    public function basic_auth_plugin_access_token_cb() {
+        $token = (string) get_option( 'basic_auth_plugin_access_token', '' );
+        ?>
+        <input type="text" name="basic_auth_plugin_access_token" value="<?php echo esc_attr( $token ); ?>"
+               class="regular-text code" readonly onclick="this.select();" autocomplete="off">
+        <label style="display:block;margin-top:6px;">
+            <input type="checkbox" name="basic_auth_plugin_generate_token" value="1">
+            <?php echo '' === $token
+                ? esc_html__( 'Generate a token when saving', 'easy-basic-authentication' )
+                : esc_html__( 'Replace this token with a new one when saving', 'easy-basic-authentication' ); ?>
+        </label>
+        <?php if ( '' !== $token ) : ?>
+            <label style="display:block;margin-top:4px;">
+                <input type="checkbox" name="basic_auth_plugin_delete_token" value="1">
+                <?php esc_html_e( 'Delete the token and close this door', 'easy-basic-authentication' ); ?>
+            </label>
+        <?php endif; ?>
+        <p class="description">
+            <?php esc_html_e( 'Lets a crawler or an external service through without a username and password. Send it as an X-Basic-Auth-Token header, or as Authorization: Bearer.', 'easy-basic-authentication' ); ?>
+            <br>
+            <strong><?php esc_html_e( 'It opens the site only — the admin area and the login page stay protected. Anyone holding this token can read your whole site, so treat it as a password.', 'easy-basic-authentication' ); ?></strong>
+        </p>
+        <?php
+    }
+
     public function basic_auth_plugin_whitelist_cb() {
         $white_list = get_option( 'basic_auth_plugin_whitelist' );
         $this->printInputText("text","basic_auth_plugin_whitelist",esc_attr( $white_list ),__('White list, separated by comma. Ex. 127.0.0.1, 1.1.1.1/20, 1.1.0.0 - 1.1.0.255', 'easy-basic-authentication'));
@@ -209,6 +258,14 @@ class easy_basic_authentication_form_class {
             update_option( 'basic_auth_plugin_alert_enable', $alert_enable );
             update_option( 'basic_auth_plugin_remove_data_after_uninstall', $remove_data );
             update_option( 'basic_auth_plugin_urlwhitelist', $url_white_list );
+
+            // Il token non si scrive a mano: o lo si genera o lo si cancella. Cosi
+            // non puo essere corto o indovinabile.
+            if ( ! empty( $param['basic_auth_plugin_delete_token'] ) ) {
+                delete_option( 'basic_auth_plugin_access_token' );
+            } elseif ( ! empty( $param['basic_auth_plugin_generate_token'] ) ) {
+                update_option( 'basic_auth_plugin_access_token', wp_generate_password( 48, false, false ) );
+            }
 
             if( $this->validateIpList( $white_list ) || strlen($white_list) == 0 ) {
                 update_option( 'basic_auth_plugin_whitelist', $white_list );
